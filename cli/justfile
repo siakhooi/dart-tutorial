@@ -1,5 +1,9 @@
 default:
   @just --list
 
-run:
-  dart run
+run *args:
+  dart run {{ args }}
+
+cli *args:
+  dart bin/cli.dart {{ args }}
+
