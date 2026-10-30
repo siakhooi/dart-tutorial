@@ -6,4 +6,8 @@ run *args:
 
 cli *args:
   dart bin/cli.dart {{ args }}
+format:
+  dart format .
+analyze:
+  dart analyze
 
