@@ -1,6 +1,20 @@
+import 'dart:async';
+import 'dart:collection';
+import 'command_runner_base.dart';
+
 enum OptionType { flag, option }
 
-class Option {
+abstract class CliElement {
+  String get name;
+  String? get help;
+
+  Object? get defaultValue;
+  String? get valueHelp;
+
+  String? get usage;
+}
+
+class Option extends CliElement {
   Option(this.name, {
     required this.type,
     this.help,
@@ -9,13 +23,18 @@ class Option {
     this.valueHelp,
   });
 
+  @override
   final String name;
   final OptionType type;
+  @override
   final String? help;
   final String? abbr;
+  @override
   final Object? defaultValue;
+  @override
   final String? valueHelp;
 
+  @override
   String get usage {
     if (abbr != null){
       return '-$abbr,--$name: $help';
@@ -26,7 +45,7 @@ class Option {
 }
 
 class ArgResults {
-  String? command;
+  Command? command;
   String? commandArg;
   Map<Option, Object?> options = {};
 
@@ -55,3 +74,65 @@ class ArgResults {
     return (option: mapEntry.key, input: mapEntry.value);
   }
 }
+
+abstract class Command extends CliElement {
+  @override
+  String get name;
+  String get description;
+  bool get requiresArgument => false;
+  late CommandRunner runner;
+
+  @override
+  String? help;
+  @override
+  String? defaultValue;
+  @override
+  String? valueHelp;
+
+  final List<Option> _options = [];
+  UnmodifiableSetView<Option> get options => UnmodifiableSetView(_options.toSet());
+
+  void addFlag(
+    String name, {
+      String? help,
+      String? abbr,
+      String? valueHelp,
+    }){
+    _options.add(
+      Option(
+        name,
+        help: help,
+        abbr: abbr,
+        defaultValue: false,
+        valueHelp: valueHelp,
+        type: OptionType.flag,
+      ),
+    );
+  }
+  void addOption(
+    String name, {
+      String? help,
+      String? abbr,
+      String? defaultValue,
+      String? valueHelp,
+    }){
+    _options.add(
+      Option(
+        name,
+        help: help,
+        abbr: abbr,
+        defaultValue: defaultValue,
+        valueHelp: valueHelp,
+        type: OptionType.option,
+      ),
+    );
+  }
+  FutureOr<Object?> run(ArgResults args);
+
+  @override
+  String get usage {
+    return '$name: $description';
+  }
+
+}
+

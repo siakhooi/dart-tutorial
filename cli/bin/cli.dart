@@ -8,6 +8,7 @@ void main(){
     help: 'Display extra logging information.',
   );
 
-  print('Defined option: ${verboseOption.name}');
+  print ('Defined option: ${verboseOption.name}');
   print('Usage: ${verboseOption.usage}');
 }
+
